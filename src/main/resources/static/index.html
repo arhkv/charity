@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Charity Donation Platform</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card { border: 1px solid #ddd; border-radius: 10px; padding: 14px; }
+        input, textarea, button, select { width: 100%; padding: 8px; margin-top: 8px; }
+        button { cursor: pointer; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .list { margin-top: 10px; }
+        .item { border-top: 1px solid #eee; padding: 8px 0; }
+        .muted { color: #666; font-size: 13px; }
+        .error { color: #b00020; }
+    </style>
+</head>
+<body>
+<h1>Charity Donation Platform</h1>
+<p class="muted">Backend: Spring Boot + PostgreSQL. Frontend: простая HTML/JS страница.</p>
+
+<div class="grid">
+    <div class="card">
+        <h2>Donors</h2>
+        <div class="row">
+            <input id="donorName" placeholder="Name"/>
+            <input id="donorEmail" placeholder="Email"/>
+        </div>
+        <button onclick="createDonor()">Create Donor</button>
+        <div id="donorsError" class="error"></div>
+        <div class="list" id="donorsList"></div>
+    </div>
+
+    <div class="card">
+        <h2>Charities</h2>
+        <input id="charityName" placeholder="Charity name"/>
+        <textarea id="charityDesc" placeholder="Description"></textarea>
+        <button onclick="createCharity()">Create Charity</button>
+        <div id="charitiesError" class="error"></div>
+        <div class="list" id="charitiesList"></div>
+    </div>
+
+    <div class="card">
+        <h2>Create Donation</h2>
+        <select id="donationDonor"></select>
+        <select id="donationCharity"></select>
+        <input id="donationAmount" type="number" min="1" placeholder="Amount (>=1)"/>
+        <input id="donationComment" placeholder="Comment (optional)"/>
+        <button onclick="createDonation()">Donate</button>
+        <div id="donationsError" class="error"></div>
+    </div>
+
+    <div class="card">
+        <h2>Donations</h2>
+        <div class="row">
+            <input id="minAmount" type="number" min="0" placeholder="Filter: min amount"/>
+            <button onclick="loadTop()">Load Top</button>
+        </div>
+        <button onclick="loadDonations()">Load All Donations</button>
+        <div class="list" id="donationsList"></div>
+    </div>
+</div>
+
+<script>
+    const API = "/api";
+
+    async function request(path, options = {}) {
+        const res = await fetch(API + path, {
+            headers: { "Content-Type": "application/json" },
+            ...options
+        });
+        if (!res.ok) {
+            let msg = res.status + " " + res.statusText;
+            try {
+                const data = await res.json();
+                msg = data.message || JSON.stringify(data);
+            } catch (_) {}
+            throw new Error(msg);
+        }
+        // DELETE может вернуть пусто
+        const text = await res.text();
+        return text ? JSON.parse(text) : null;
+    }
+
+    function el(id){ return document.getElementById(id); }
+
+    function renderList(cont
