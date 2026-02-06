@@ -1,4 +1,4 @@
-package com.example.charity_donation_platform;
+package com.example.charityapi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,5 @@
-package PACKAGE_NAME;
+package com.example.charityapi.repository;
 
-public class dsvs {
-}
+import com.example.charityapi.entity.Charity;
+
+public interface CharityRepository extends CrudRepository<Charity, Long> {}

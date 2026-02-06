@@ -1,4 +1,5 @@
-package PACKAGE_NAME;
+package com.example.charityapi.exception;
 
-public class df {
+public class NotFoundException extends RuntimeException {
+    public NotFoundException(String message) { super(message); }
 }

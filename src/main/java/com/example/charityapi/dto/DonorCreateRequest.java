@@ -1,4 +1,14 @@
-package PACKAGE_NAME;
+package com.example.charityapi.dto;
 
-public class vd {
+public class DonorCreateRequest {
+    private String name;
+    private String email;
+
+    public DonorCreateRequest() {}
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 }

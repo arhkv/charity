@@ -19,7 +19,6 @@
 </head>
 <body>
 <h1>Charity Donation Platform</h1>
-<p class="muted">Backend: Spring Boot + PostgreSQL. Frontend: простая HTML/JS страница.</p>
 
 <div class="grid">
     <div class="card">
@@ -86,4 +85,141 @@
 
     function el(id){ return document.getElementById(id); }
 
-    function renderList(cont
+    function renderList(container, items, renderer){
+        container.innerHTML = "";
+        items.forEach(x => {
+            const div = document.createElement("div");
+            div.className = "item";
+            div.innerHTML = renderer(x);
+            container.appendChild(div);
+        });
+    }
+
+    async function loadDonors(){
+        el("donorsError").textContent = "";
+        try {
+            const donors = await request("/donors");
+            renderList(el("donorsList"), donors, d => `
+      <b>#${d.id}</b> ${d.name} <div class="muted">${d.email}</div>
+      <button onclick="deleteDonor(${d.id})">Delete</button>
+    `);
+            // dropdown
+            el("donationDonor").innerHTML = donors.map(d => `<option value="${d.id}">#${d.id} ${d.name}</option>`).join("");
+        } catch (e) {
+            el("donorsError").textContent = e.message;
+        }
+    }
+
+    async function createDonor(){
+        el("donorsError").textContent = "";
+        try {
+            await request("/donors", {
+                method: "POST",
+                body: JSON.stringify({ name: el("donorName").value, email: el("donorEmail").value })
+            });
+            el("donorName").value = "";
+            el("donorEmail").value = "";
+            await loadDonors();
+        } catch (e) {
+            el("donorsError").textContent = e.message;
+        }
+    }
+
+    async function deleteDonor(id){
+        await request(`/donors/${id}`, { method: "DELETE" });
+        await loadDonors();
+        await loadDonations();
+    }
+
+    async function loadCharities(){
+        el("charitiesError").textContent = "";
+        try {
+            const charities = await request("/charities");
+            renderList(el("charitiesList"), charities, c => `
+      <b>#${c.id}</b> ${c.name}
+      <div class="muted">${c.description}</div>
+      <button onclick="deleteCharity(${c.id})">Delete</button>
+    `);
+            el("donationCharity").innerHTML = charities.map(c => `<option value="${c.id}">#${c.id} ${c.name}</option>`).join("");
+        } catch (e) {
+            el("charitiesError").textContent = e.message;
+        }
+    }
+
+    async function createCharity(){
+        el("charitiesError").textContent = "";
+        try {
+            await request("/charities", {
+                method: "POST",
+                body: JSON.stringify({ name: el("charityName").value, description: el("charityDesc").value })
+            });
+            el("charityName").value = "";
+            el("charityDesc").value = "";
+            await loadCharities();
+        } catch (e) {
+            el("charitiesError").textContent = e.message;
+        }
+    }
+
+    async function deleteCharity(id){
+        await request(`/charities/${id}`, { method: "DELETE" });
+        await loadCharities();
+        await loadDonations();
+    }
+
+    async function createDonation(){
+        el("donationsError").textContent = "";
+        try {
+            await request("/donations", {
+                method: "POST",
+                body: JSON.stringify({
+                    donorId: Number(el("donationDonor").value),
+                    charityId: Number(el("donationCharity").value),
+                    amount: Number(el("donationAmount").value),
+                    comment: el("donationComment").value
+                })
+            });
+            el("donationAmount").value = "";
+            el("donationComment").value = "";
+            await loadDonations();
+        } catch (e) {
+            el("donationsError").textContent = e.message;
+        }
+    }
+
+    async function loadDonations(){
+        el("donationsError").textContent = "";
+        try {
+            const donations = await request("/donations");
+            renderList(el("donationsList"), donations, d => `
+      <b>#${d.id}</b> donor=${d.donorId}, charity=${d.charityId}, amount=${d.amount}
+      <div class="muted">${d.comment ? " • " + d.comment : ""}</div>
+      <button onclick="deleteDonation(${d.id})">Delete</button>
+    `);
+        } catch (e) {
+            el("donationsError").textContent = e.message;
+        }
+    }
+
+    async function loadTop(){
+        const min = Number(el("minAmount").value || 0);
+        const donations = await request(`/donations/top?minAmount=${min}`);
+        renderList(el("donationsList"), donations, d => `
+    <b>#${d.id}</b> donor=${d.donorId}, charity=${d.charityId}, amount=${d.amount}
+    <div class="muted">${d.comment ? " • " + d.comment : ""}</div>
+  `);
+    }
+
+    async function deleteDonation(id){
+        await request(`/donations/${id}`, { method: "DELETE" });
+        await loadDonations();
+    }
+
+    (async function init(){
+        await loadDonors();
+        await loadCharities();
+        await loadDonations();
+    })();
+</script>
+</body>
+</html>

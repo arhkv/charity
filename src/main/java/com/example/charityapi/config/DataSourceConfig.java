@@ -13,7 +13,7 @@ public class DataSourceConfig {
     public DataSource dataSource() {
         DriverManagerDataSource ds = new DriverManagerDataSource();
         ds.setDriverClassName("org.postgresql.Driver");
-        ds.setUrl("jdbc:postgresql://localhost:5432/charity_db");
+        ds.setUrl("jdbc:postgresql://localhost:5432/oop");
         ds.setUsername("postgres");
         ds.setPassword("123"); // поставь свой пароль
         return ds;

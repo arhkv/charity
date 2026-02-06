@@ -1,4 +1,5 @@
-package PACKAGE_NAME;
+package com.example.charityapi.exception;
 
-public class dasfada {
+public class InvalidDonationAmountException extends RuntimeException {
+    public InvalidDonationAmountException(String message) { super(message); }
 }
