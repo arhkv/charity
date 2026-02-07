@@ -12,37 +12,36 @@ import java.util.List;
 @RequestMapping("/api/charities")
 public class CharityController {
 
-    private final CharityService charityService;
+    private final CharityService service;
 
-    public CharityController(CharityService charityService) {
-        this.charityService = charityService;
-    }
-
-    @PostMapping
-    public Charity create(@RequestBody CharityCreateRequest req) {
-        return charityService.create(new Charity(req.getName(), req.getDescription()));
-    }
-
-    @GetMapping("/{id}")
-    public Charity get(@PathVariable Long id) {
-        return charityService.get(id);
+    public CharityController(CharityService service) {
+        this.service = service;
     }
 
     @GetMapping
     public List<Charity> all() {
-        return charityService.all();
+        return service.all();
+    }
+
+    @GetMapping("/{id}")
+    public Charity get(@PathVariable Long id) {
+        return service.get(id);
+    }
+
+    @PostMapping
+    public Charity create(@RequestBody CharityCreateRequest req) {
+        Charity c = new Charity(null, req.getName(), req.getDescription());
+        return service.create(c);
     }
 
     @PutMapping("/{id}")
     public Charity update(@PathVariable Long id, @RequestBody CharityUpdateRequest req) {
-        Charity current = charityService.get(id);
-        if (req.getName() != null) current.setName(req.getName());
-        if (req.getDescription() != null) current.setDescription(req.getDescription());
-        return charityService.update(id, current);
+        Charity c = new Charity(null, req.getName(), req.getDescription());
+        return service.update(id, c);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        charityService.delete(id);
+        service.delete(id);
     }
 }

@@ -12,37 +12,36 @@ import java.util.List;
 @RequestMapping("/api/donors")
 public class DonorController {
 
-    private final DonorService donorService;
+    private final DonorService service;
 
-    public DonorController(DonorService donorService) {
-        this.donorService = donorService;
-    }
-
-    @PostMapping
-    public Donor create( @RequestBody DonorCreateRequest req) {
-        return donorService.create(new Donor(req.getName(), req.getEmail()));
-    }
-
-    @GetMapping("/{id}")
-    public Donor get(@PathVariable Long id) {
-        return donorService.get(id);
+    public DonorController(DonorService service) {
+        this.service = service;
     }
 
     @GetMapping
     public List<Donor> all() {
-        return donorService.all();
+        return service.all();
+    }
+
+    @GetMapping("/{id}")
+    public Donor get(@PathVariable Long id) {
+        return service.get(id);
+    }
+
+    @PostMapping
+    public Donor create(@RequestBody DonorCreateRequest req) {
+        Donor d = new Donor(null, req.getName(), req.getEmail());
+        return service.create(d);
     }
 
     @PutMapping("/{id}")
     public Donor update(@PathVariable Long id, @RequestBody DonorUpdateRequest req) {
-        Donor current = donorService.get(id);
-        if (req.getName() != null) current.setName(req.getName());
-        if (req.getEmail() != null) current.setEmail(req.getEmail());
-        return donorService.update(id, current);
+        Donor d = new Donor(null, req.getName(), req.getEmail());
+        return service.update(id, d);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        donorService.delete(id);
+        service.delete(id);
     }
 }

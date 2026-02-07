@@ -9,33 +9,31 @@ import java.util.List;
 
 @Service
 public class CharityService {
+    private final CharityRepository repo;
 
-    private final CharityRepository charityRepository;
-
-    public CharityService(CharityRepository charityRepository) {
-        this.charityRepository = charityRepository;
+    public CharityService(CharityRepository repo) {
+        this.repo = repo;
     }
 
     public Charity create(Charity charity) {
-        return charityRepository.save(charity);
+        return repo.save(charity);
     }
 
     public Charity get(Long id) {
-        return charityRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Charity not found: id=" + id));
+        return repo.findById(id).orElseThrow(() -> new NotFoundException("Charity not found: id=" + id));
     }
 
     public List<Charity> all() {
-        return charityRepository.findAll();
+        return repo.findAll();
     }
 
-    public Charity update(Long id, Charity updated) {
+    public Charity update(Long id, Charity charity) {
         get(id);
-        return charityRepository.update(id, updated);
+        return repo.update(id, charity);
     }
 
     public void delete(Long id) {
         get(id);
-        charityRepository.deleteById(id);
+        repo.deleteById(id);
     }
 }

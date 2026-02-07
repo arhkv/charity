@@ -1,113 +1,95 @@
 package com.example.charityapi.repository.jdbc;
 
 import com.example.charityapi.entity.Charity;
+import com.example.charityapi.exception.DbException;
+import com.example.charityapi.exception.NotFoundException;
 import com.example.charityapi.repository.CharityRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
-import java.sql.*;
-import java.util.*;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class JdbcCharityRepository implements CharityRepository {
 
-    private final DataSource dataSource;
+    private final JdbcTemplate jdbc;
 
-    public JdbcCharityRepository(DataSource dataSource) {
-        this.dataSource = dataSource;
+    public JdbcCharityRepository(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
     }
 
     @Override
     public Charity save(Charity charity) {
-        String sql = "INSERT INTO charities(name, description) VALUES (?, ?) RETURNING id, created_at";
-        try (Connection c = dataSource.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+        try {
+            String sql = "INSERT INTO charities(name, description) VALUES (?, ?)";
 
-            ps.setString(1, charity.getName());
-            ps.setString(2, charity.getDescription());
+            KeyHolder kh = new GeneratedKeyHolder();
+            jdbc.update(con -> {
+                PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, charity.getName());
+                ps.setString(2, charity.getDescription());
+                return ps;
+            }, kh);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                rs.next();
-                charity.setId(rs.getLong("id"));
-                charity.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-                return charity;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("DB error while saving charity: " + e.getMessage(), e);
+            Long id = kh.getKey().longValue();
+            charity.setId(id);
+            return charity;
+        } catch (Exception e) {
+            throw new DbException("DB error while saving charity", e);
         }
     }
 
     @Override
     public Optional<Charity> findById(Long id) {
-        String sql = "SELECT id, name, description, created_at FROM charities WHERE id = ?";
-        try (Connection c = dataSource.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-
-            ps.setLong(1, id);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return Optional.empty();
-                return Optional.of(map(rs));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("DB error while finding charity: " + e.getMessage(), e);
+        try {
+            String sql = "SELECT id, name, description FROM charities WHERE id=?";
+            List<Charity> list = jdbc.query(sql, (rs, rn) ->
+                    new Charity(rs.getLong("id"), rs.getString("name"), rs.getString("description")), id);
+            return list.stream().findFirst();
+        } catch (Exception e) {
+            throw new DbException("DB error while reading charity", e);
         }
     }
 
     @Override
     public List<Charity> findAll() {
-        String sql = "SELECT id, name, description, created_at FROM charities ORDER BY id";
-        List<Charity> list = new ArrayList<>();
-        try (Connection c = dataSource.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) list.add(map(rs));
-            return list;
-
-        } catch (SQLException e) {
-            throw new RuntimeException("DB error while reading charities: " + e.getMessage(), e);
+        try {
+            String sql = "SELECT id, name, description FROM charities ORDER BY id";
+            return jdbc.query(sql, (rs, rn) ->
+                    new Charity(rs.getLong("id"), rs.getString("name"), rs.getString("description")));
+        } catch (Exception e) {
+            throw new DbException("DB error while reading charities", e);
         }
     }
 
     @Override
     public Charity update(Long id, Charity charity) {
-        String sql = "UPDATE charities SET name = ?, description = ? WHERE id = ?";
-        try (Connection c = dataSource.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+        try {
+            String sql = "UPDATE charities SET name=?, description=? WHERE id=?";
+            int updated = jdbc.update(sql, charity.getName(), charity.getDescription(), id);
+            if (updated == 0) throw new NotFoundException("Charity not found: id=" + id);
 
-            ps.setString(1, charity.getName());
-            ps.setString(2, charity.getDescription());
-            ps.setLong(3, id);
-
-            ps.executeUpdate();
-            return findById(id).orElseThrow();
-
-        } catch (SQLException e) {
-            throw new RuntimeException("DB error while updating charity: " + e.getMessage(), e);
+            charity.setId(id);
+            return charity;
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DbException("DB error while updating charity", e);
         }
     }
 
     @Override
     public void deleteById(Long id) {
-        String sql = "DELETE FROM charities WHERE id = ?";
-        try (Connection c = dataSource.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-
-            ps.setLong(1, id);
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new RuntimeException("DB error while deleting charity: " + e.getMessage(), e);
+        try {
+            String sql = "DELETE FROM charities WHERE id=?";
+            jdbc.update(sql, id);
+        } catch (Exception e) {
+            throw new DbException("DB error while deleting charity", e);
         }
-    }
-
-    private Charity map(ResultSet rs) throws SQLException {
-        return new Charity(
-                rs.getLong("id"),
-                rs.getString("name"),
-                rs.getString("description"),
-                rs.getTimestamp("created_at").toLocalDateTime()
-        );
     }
 }

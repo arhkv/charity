@@ -40,27 +40,14 @@ public class Donation {
     public String getComment() { return comment; }
     public void setComment(String comment) { this.comment = comment; }
 
-    @Override
-    public String toString() {
-        return "Donation{" +
-                "id=" + id +
-                ", donorId=" + donorId +
-                ", charityId=" + charityId +
-                ", amount=" + amount +
-                ", donatedAt=" + donatedAt +
-                ", comment='" + comment + '\'' +
-                '}';
+    @Override public String toString() {
+        return "Donation{id=" + id + ", donorId=" + donorId + ", charityId=" + charityId +
+                ", amount=" + amount + ", donatedAt=" + donatedAt + ", comment='" + comment + "'}";
     }
-
-    @Override
-    public boolean equals(Object o) {
+    @Override public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Donation donation)) return false;
         return Objects.equals(id, donation.id);
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
+    @Override public int hashCode() { return Objects.hash(id); }
 }

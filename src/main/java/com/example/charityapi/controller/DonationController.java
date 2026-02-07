@@ -1,9 +1,8 @@
 package com.example.charityapi.controller;
 
 import com.example.charityapi.dto.DonationCreateRequest;
-import com.example.charityapi.dto.DonationResponse;
+import com.example.charityapi.dto.DonationUpdateRequest;
 import com.example.charityapi.entity.Donation;
-import com.example.charityapi.factory.DonationFactory;
 import com.example.charityapi.service.DonationService;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,57 +12,50 @@ import java.util.List;
 @RequestMapping("/api/donations")
 public class DonationController {
 
-    private final DonationService donationService;
+    private final DonationService service;
 
-    public DonationController(DonationService donationService) {
-        this.donationService = donationService;
-    }
-
-    @PostMapping
-    public DonationResponse create( @RequestBody DonationCreateRequest req) {
-        Donation donation = DonationFactory.fromRequest(req); // Factory + Builder
-        Donation saved = donationService.create(donation);
-        return toResponse(saved);
-    }
-
-    @GetMapping("/{id}")
-    public DonationResponse get(@PathVariable Long id) {
-        return toResponse(donationService.get(id));
+    public DonationController(DonationService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<DonationResponse> all() {
-        return donationService.all().stream().map(this::toResponse).toList();
+    public List<Donation> all() {
+        return service.all();
     }
 
-    @GetMapping("/by-donor/{donorId}")
-    public List<DonationResponse> byDonor(@PathVariable Long donorId) {
-        return donationService.byDonor(donorId).stream().map(this::toResponse).toList();
+    @GetMapping("/{id}")
+    public Donation get(@PathVariable Long id) {
+        return service.get(id);
     }
 
-    @GetMapping("/by-charity/{charityId}")
-    public List<DonationResponse> byCharity(@PathVariable Long charityId) {
-        return donationService.byCharity(charityId).stream().map(this::toResponse).toList();
+    @PostMapping
+    public Donation create(@RequestBody DonationCreateRequest req) {
+        Donation d = new Donation();
+        d.setDonorId(req.getDonorId());
+        d.setCharityId(req.getCharityId());
+        d.setAmount(req.getAmount());
+        d.setComment(req.getComment());
+        return service.create(d);
     }
 
-    @GetMapping("/top")
-    public List<DonationResponse> topAbove(@RequestParam long minAmount) {
-        return donationService.topAbove(minAmount).stream().map(this::toResponse).toList();
+    @PutMapping("/{id}")
+    public Donation update(@PathVariable Long id, @RequestBody DonationUpdateRequest req) {
+        Donation d = new Donation();
+        d.setDonorId(req.getDonorId());
+        d.setCharityId(req.getCharityId());
+        if (req.getAmount() != null) d.setAmount(req.getAmount());
+        d.setComment(req.getComment());
+        return service.update(id, d);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        donationService.delete(id);
+        service.delete(id);
     }
 
-    private DonationResponse toResponse(Donation d) {
-        return new DonationResponse(
-                d.getId(),
-                d.getDonorId(),
-                d.getCharityId(),
-                d.getAmount(),
-                d.getDonatedAt(),
-                d.getComment()
-        );
+    // Data pool endpoint (optional): /api/donations/top?minAmount=1000
+    @GetMapping("/top")
+    public List<Donation> top(@RequestParam long minAmount) {
+        return service.topAbove(minAmount);
     }
 }
