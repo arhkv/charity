@@ -1,395 +1,162 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta charset="UTF-8">
     <title>Charity Donation Platform</title>
     <style>
-        :root{
-            --bg:#0b1020; --card:rgba(255,255,255,.06); --line:rgba(255,255,255,.12);
-            --txt:rgba(255,255,255,.92); --mut:rgba(255,255,255,.62);
-            --a:#7c5cff; --d:#ff4d4f; --r:14px;
-        }
-        *{box-sizing:border-box}
-        body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;color:var(--txt);
-            background:
-                    radial-gradient(700px 500px at 20% 10%, rgba(124,92,255,.25), transparent 60%),
-                    radial-gradient(700px 500px at 90% 20%, rgba(45,212,191,.14), transparent 60%),
-                    var(--bg);
-            min-height:100vh;
-        }
-        .top{position:sticky;top:0;z-index:5;backdrop-filter:blur(16px);
-            background:rgba(11,16,32,.78);border-bottom:1px solid var(--line)}
-        .topin{max-width:1050px;margin:0 auto;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-        .title{font-weight:700;font-size:14px}
-        .btn{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);
-            padding:8px 10px;border-radius:10px;cursor:pointer}
-        .btn:hover{background:rgba(255,255,255,.09)}
-        .btn.primary{background:linear-gradient(135deg,var(--a),rgba(124,92,255,.55));border-color:rgba(124,92,255,.35)}
-        .btn.danger{background:rgba(255,77,79,.14);border-color:rgba(255,77,79,.35)}
-        .wrap{max-width:1050px;margin:0 auto;padding:16px}
-        .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-        .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-        .hd{padding:12px;border-bottom:1px solid rgba(255,255,255,.08)}
-        .hd b{font-size:14px}
-        .hd small{display:block;color:var(--mut);margin-top:4px}
-        .bd{padding:12px}
-        label{font-size:12px;color:var(--mut)}
-        input,textarea,select{width:100%;padding:9px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.14);
-            background:rgba(0,0,0,.25);color:var(--txt);outline:none}
-        textarea{min-height:70px;resize:vertical}
-        .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-        .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-        .err{margin-top:8px;color:rgba(255,77,79,.95);font-size:12px}
-        .table{margin-top:10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:rgba(0,0,0,.18)}
-        table{width:100%;border-collapse:collapse;min-width:820px}
-        th,td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.08);font-size:13px;text-align:left;vertical-align:middle}
-        th{font-size:12px;color:var(--mut)}
-        .mut{color:var(--mut)}
-        .toast{position:fixed;right:14px;bottom:14px;display:flex;flex-direction:column;gap:10px;z-index:20}
-        .toast .i{width:min(340px,calc(100vw - 28px));padding:10px 12px;border-radius:12px;border:1px solid var(--line);
-            background:rgba(20,28,52,.72);backdrop-filter:blur(16px)}
-        .toast .i.ok{border-color:rgba(34,197,94,.35)}
-        .toast .i.err{border-color:rgba(255,77,79,.35)}
-        .toast .t{margin:0;font-weight:700;font-size:13px}
-        .toast .m{margin:6px 0 0;color:var(--mut);font-size:12px;line-height:1.35}
-
-        /* scroll both directions for long donations table */
-        .table-scroll{max-height:320px; overflow:auto;}
-        .table-scroll::-webkit-scrollbar{height:10px;width:10px}
-        .table-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:999px}
-        .table-scroll::-webkit-scrollbar-track{background:rgba(255,255,255,.06);border-radius:999px}
-
-        @media(max-width:980px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr} table{min-width:780px}}
+        body{font-family:Arial;background:#111;color:#eee;padding:20px}
+        h1{margin-bottom:10px}
+        .box{background:#1c1f26;padding:15px;border-radius:8px;margin-bottom:20px}
+        input,select,button{padding:8px;margin:5px 0;width:100%}
+        button{background:#6c5ce7;color:#fff;border:none;border-radius:6px;cursor:pointer}
+        button.del{background:#ff4d4f}
+        table{width:100%;border-collapse:collapse;margin-top:10px}
+        th,td{border-bottom:1px solid #333;padding:6px}
+        .scroll{max-height:220px;overflow:auto}
+        .actions button{width:auto;margin-right:5px}
     </style>
 </head>
 <body>
-<div class="top">
-    <div class="topin">
-        <div class="title">Charity Donation Platform</div>
-        <div class="actions" style="margin:0">
-            <button class="btn" onclick="refreshAll()">Refresh</button>
-            <button class="btn primary" onclick="document.getElementById('donCard').scrollIntoView({behavior:'smooth'})">Donation</button>
-        </div>
+
+<h1>Charity Donation Platform</h1>
+<button onclick="refreshAll()">🔄 Refresh All</button>
+
+<!-- DONORS -->
+<div class="box">
+    <h2>Donors</h2>
+    <input id="dn" placeholder="Name">
+    <input id="de" placeholder="Email">
+    <button onclick="addDonor()">Add donor</button>
+
+    <div class="scroll">
+        <table>
+            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Actions</th></tr></thead>
+            <tbody id="donors"></tbody>
+        </table>
     </div>
 </div>
 
-<div class="wrap">
-    <div class="grid">
-        <!-- DONORS -->
-        <div class="card">
-            <div class="hd"><b>Donors</b><small>Create / Edit / Delete</small></div>
-            <div class="bd">
-                <div class="row">
-                    <div><label>Name</label><input id="donorName" placeholder="Amir"></div>
-                    <div><label>Email</label><input id="donorEmail" placeholder="amir@mail.com"></div>
-                </div>
-                <div class="actions">
-                    <button class="btn primary" id="donorSaveBtn" onclick="createDonor()">Add</button>
-                    <button class="btn" id="donorCancelBtn" style="display:none" onclick="cancelEditDonor()">Cancel</button>
-                </div>
-                <div class="err" id="donorsErr"></div>
-                <div class="table table-scroll">
-                    <table>
-                        <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Actions</th></tr></thead>
-                        <tbody id="donorsTb"><tr><td colspan="4" class="mut">No donors.</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+<!-- CHARITIES -->
+<div class="box">
+    <h2>Charities</h2>
+    <input id="cn" placeholder="Name">
+    <input id="cd" placeholder="Description">
+    <button onclick="addCharity()">Add charity</button>
 
-        <!-- CHARITIES -->
-        <div class="card">
-            <div class="hd"><b>Charities</b><small>Create / Edit / Delete</small></div>
-            <div class="bd">
-                <div><label>Name</label><input id="charName" placeholder="Green Earth"></div>
-                <div style="margin-top:10px"><label>Description</label><textarea id="charDesc" placeholder="Mission..."></textarea></div>
-                <div class="actions">
-                    <button class="btn primary" id="charSaveBtn" onclick="createCharity()">Add</button>
-                    <button class="btn" id="charCancelBtn" style="display:none" onclick="cancelEditCharity()">Cancel</button>
-                </div>
-                <div class="err" id="charErr"></div>
-                <div class="table table-scroll">
-                    <table>
-                        <thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Actions</th></tr></thead>
-                        <tbody id="charTb"><tr><td colspan="4" class="mut">No charities.</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- DONATION FORM -->
-        <div class="card" id="donCard">
-            <div class="hd"><b>Donation</b><small>Create / Edit</small></div>
-            <div class="bd">
-                <div class="row">
-                    <div><label>Donor</label><select id="donDonor"></select></div>
-                    <div><label>Charity</label><select id="donCharity"></select></div>
-                </div>
-                <div class="row" style="margin-top:10px">
-                    <div><label>Amount</label><input id="donAmount" type="number" min="1" placeholder="1000"></div>
-                    <div><label>Comment</label><input id="donComment" placeholder="Optional"></div>
-                </div>
-                <div class="actions">
-                    <button class="btn primary" id="donSaveBtn" onclick="createDonation()">Save</button>
-                    <button class="btn" id="donCancelBtn" style="display:none" onclick="cancelEditDonation()">Cancel</button>
-                </div>
-                <div class="err" id="donErr"></div>
-            </div>
-        </div>
-
-        <!-- DONATIONS LIST -->
-        <div class="card">
-            <div class="hd"><b>Donations</b><small>Edit / Delete + Filter</small></div>
-            <div class="bd">
-                <div class="row">
-                    <div><label>Min amount</label><input id="minAmount" type="number" min="0" placeholder="1000"></div>
-                    <div style="display:flex;align-items:end;gap:10px">
-                        <button class="btn" onclick="loadDonations()">All</button>
-                        <button class="btn primary" onclick="loadTop()">Filter</button>
-                    </div>
-                </div>
-
-                <div class="table table-scroll">
-                    <table>
-                        <thead><tr><th>ID</th><th>Donor</th><th>Charity</th><th>Amount</th><th>Comment</th><th>Actions</th></tr></thead>
-                        <tbody id="donTb"><tr><td colspan="6" class="mut">No donations.</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+    <div class="scroll">
+        <table>
+            <thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Actions</th></tr></thead>
+            <tbody id="charities"></tbody>
+        </table>
     </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- DONATIONS -->
+<div class="box">
+    <h2>Donations</h2>
+    <select id="dd"></select>
+    <select id="dc"></select>
+    <input id="da" type="number" placeholder="Amount">
+    <input id="dcom" placeholder="Comment">
+    <button onclick="addDonation()">Add donation</button>
+
+    <div class="scroll">
+        <table>
+            <thead><tr><th>ID</th><th>Donor</th><th>Charity</th><th>Amount</th><th>Actions</th></tr></thead>
+            <tbody id="donations"></tbody>
+        </table>
+    </div>
+</div>
 
 <script>
     const API="/api";
-    const el=(id)=>document.getElementById(id);
-    let donors=[], charities=[], donations=[];
-    let editingDonorId=null, editingCharityId=null, editingDonationId=null;
 
-    function esc(s){return String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")}
-    function toast(type,t,m){
-        const box=el("toast");
-        const d=document.createElement("div");
-        d.className="i "+(type||"");
-        d.innerHTML=`<p class="t">${esc(t)}</p><p class="m">${esc(m||"")}</p>`;
-        box.appendChild(d);
-        setTimeout(()=>d.remove(),3200);
-    }
-    async function request(path,opt={}){
-        const res=await fetch(API+path,{headers:{"Content-Type":"application/json"},...opt});
-        if(!res.ok){
-            let msg=`${res.status} ${res.statusText}`;
-            try{const j=await res.json(); msg=j.message||JSON.stringify(j)}catch(_){}
-            throw new Error(msg);
-        }
-        const txt=await res.text();
-        return txt?JSON.parse(txt):null;
-    }
-    function donorName(id){const d=donors.find(x=>+x.id===+id); return d?d.name:`Donor#${id}`;}
-    function charityName(id){const c=charities.find(x=>+x.id===+id); return c?c.name:`Charity#${id}`;}
-    function fillDonationSelects(){
-        el("donDonor").innerHTML = donors.length ? donors.map(d=>`<option value="${d.id}">#${d.id} ${esc(d.name)}</option>`).join("") : `<option value="">No donors</option>`;
-        el("donCharity").innerHTML = charities.length ? charities.map(c=>`<option value="${c.id}">#${c.id} ${esc(c.name)}</option>`).join("") : `<option value="">No charities</option>`;
-    }
+    const req = (url,method="GET",body)=>
+        fetch(API+url,{
+            method,
+            headers:{"Content-Type":"application/json"},
+            body:body?JSON.stringify(body):null
+        }).then(r=>r.ok?r.json():Promise.reject());
 
-    /* DONORS */
+    /* -------- DONORS -------- */
     async function loadDonors(){
-        el("donorsErr").textContent="";
-        try{
-            donors=await request("/donors");
-            const tb=el("donorsTb");
-            tb.innerHTML = donors.length ? donors.map(d=>`
-      <tr>
-        <td>${d.id}</td><td>${esc(d.name)}</td><td class="mut">${esc(d.email)}</td>
-        <td>
-          <button class="btn" onclick="startEditDonor(${d.id})">Edit</button>
-          <button class="btn danger" onclick="deleteDonor(${d.id})">Del</button>
-        </td>
-      </tr>`).join("") : `<tr><td colspan="4" class="mut">No donors.</td></tr>`;
-            fillDonationSelects();
-        }catch(e){el("donorsErr").textContent=e.message; toast("err","Donors",e.message);}
-    }
-    async function createDonor(){
-        const name=el("donorName").value.trim(), email=el("donorEmail").value.trim();
-        if(!name||!email){el("donorsErr").textContent="Enter name and email."; return;}
-        try{
-            await request("/donors",{method:"POST",body:JSON.stringify({name,email})});
-            el("donorName").value=""; el("donorEmail").value="";
-            toast("ok","Donor created",name);
-            await loadDonors();
-        }catch(e){el("donorsErr").textContent=e.message; toast("err","Create donor",e.message);}
-    }
-    function startEditDonor(id){
-        const d=donors.find(x=>+x.id===+id); if(!d) return;
-        editingDonorId=id;
-        el("donorName").value=d.name||""; el("donorEmail").value=d.email||"";
-        el("donorSaveBtn").textContent="Save"; el("donorSaveBtn").onclick=saveDonor;
-        el("donorCancelBtn").style.display="inline-flex";
-    }
-    function cancelEditDonor(){
-        editingDonorId=null;
-        el("donorName").value=""; el("donorEmail").value="";
-        el("donorSaveBtn").textContent="Add"; el("donorSaveBtn").onclick=createDonor;
-        el("donorCancelBtn").style.display="none";
-    }
-    async function saveDonor(){
-        const id=editingDonorId;
-        const name=el("donorName").value.trim(), email=el("donorEmail").value.trim();
-        if(!id) return;
-        if(!name||!email){el("donorsErr").textContent="Enter name and email."; return;}
-        try{
-            await request(`/donors/${id}`,{method:"PUT",body:JSON.stringify({name,email})});
-            toast("ok","Donor updated",`ID ${id}`);
-            cancelEditDonor();
-            await loadDonors();
-        }catch(e){el("donorsErr").textContent=e.message; toast("err","Update donor",e.message);}
-    }
-    async function deleteDonor(id){
-        if(!confirm("Delete donor?")) return;
-        try{ await request(`/donors/${id}`,{method:"DELETE"}); toast("ok","Donor deleted",`ID ${id}`); await refreshAll(); }
-        catch(e){ toast("err","Delete donor",e.message); }
+        const d=await req("/donors");
+        donors.innerHTML=d.map(x=>`
+<tr>
+<td>${x.id}</td><td>${x.name}</td><td>${x.email}</td>
+<td class="actions">
+<button onclick="editDonor(${x.id},'${x.name}','${x.email}')">✏️</button>
+<button class="del" onclick="delDonor(${x.id})">🗑</button>
+</td></tr>`).join("");
+        dd.innerHTML=d.map(x=>`<option value="${x.id}">${x.name}</option>`).join("");
     }
 
-    /* CHARITIES */
+    function addDonor(){
+        req("/donors","POST",{name:dn.value,email:de.value}).then(loadDonors);
+        dn.value=de.value="";
+    }
+    function editDonor(id,n,e){
+        const name=prompt("New name:",n);
+        const email=prompt("New email:",e);
+        if(name&&email) req(`/donors/${id}`,"PUT",{name,email}).then(loadDonors);
+    }
+    function delDonor(id){
+        if(confirm("Delete donor?")) req(`/donors/${id}`,"DELETE").then(loadDonors);
+    }
+
+    /* -------- CHARITIES -------- */
     async function loadCharities(){
-        el("charErr").textContent="";
-        try{
-            charities=await request("/charities");
-            const tb=el("charTb");
-            tb.innerHTML = charities.length ? charities.map(c=>`
-      <tr>
-        <td>${c.id}</td><td>${esc(c.name)}</td><td class="mut">${esc(c.description)}</td>
-        <td>
-          <button class="btn" onclick="startEditCharity(${c.id})">Edit</button>
-          <button class="btn danger" onclick="deleteCharity(${c.id})">Del</button>
-        </td>
-      </tr>`).join("") : `<tr><td colspan="4" class="mut">No charities.</td></tr>`;
-            fillDonationSelects();
-        }catch(e){el("charErr").textContent=e.message; toast("err","Charities",e.message);}
+        const c=await req("/charities");
+        charities.innerHTML=c.map(x=>`
+<tr>
+<td>${x.id}</td><td>${x.name}</td><td>${x.description}</td>
+<td class="actions">
+<button onclick="editCharity(${x.id},'${x.name}','${x.description}')">✏️</button>
+<button class="del" onclick="delCharity(${x.id})">🗑</button>
+</td></tr>`).join("");
+        dc.innerHTML=c.map(x=>`<option value="${x.id}">${x.name}</option>`).join("");
     }
-    async function createCharity(){
-        const name=el("charName").value.trim(), description=el("charDesc").value.trim();
-        if(!name||!description){el("charErr").textContent="Enter name and description."; return;}
-        try{
-            await request("/charities",{method:"POST",body:JSON.stringify({name,description})});
-            el("charName").value=""; el("charDesc").value="";
-            toast("ok","Charity created",name);
-            await loadCharities();
-        }catch(e){el("charErr").textContent=e.message; toast("err","Create charity",e.message);}
+    function addCharity(){
+        req("/charities","POST",{name:cn.value,description:cd.value}).then(loadCharities);
+        cn.value=cd.value="";
     }
-    function startEditCharity(id){
-        const c=charities.find(x=>+x.id===+id); if(!c) return;
-        editingCharityId=id;
-        el("charName").value=c.name||""; el("charDesc").value=c.description||"";
-        el("charSaveBtn").textContent="Save"; el("charSaveBtn").onclick=saveCharity;
-        el("charCancelBtn").style.display="inline-flex";
+    function editCharity(id,n,d){
+        const name=prompt("New name:",n);
+        const desc=prompt("New description:",d);
+        if(name&&desc) req(`/charities/${id}`,"PUT",{name,description:desc}).then(loadCharities);
     }
-    function cancelEditCharity(){
-        editingCharityId=null;
-        el("charName").value=""; el("charDesc").value="";
-        el("charSaveBtn").textContent="Add"; el("charSaveBtn").onclick=createCharity;
-        el("charCancelBtn").style.display="none";
-    }
-    async function saveCharity(){
-        const id=editingCharityId;
-        const name=el("charName").value.trim(), description=el("charDesc").value.trim();
-        if(!id) return;
-        if(!name||!description){el("charErr").textContent="Enter name and description."; return;}
-        try{
-            await request(`/charities/${id}`,{method:"PUT",body:JSON.stringify({name,description})});
-            toast("ok","Charity updated",`ID ${id}`);
-            cancelEditCharity();
-            await loadCharities();
-        }catch(e){el("charErr").textContent=e.message; toast("err","Update charity",e.message);}
-    }
-    async function deleteCharity(id){
-        if(!confirm("Delete charity?")) return;
-        try{ await request(`/charities/${id}`,{method:"DELETE"}); toast("ok","Charity deleted",`ID ${id}`); await refreshAll(); }
-        catch(e){ toast("err","Delete charity",e.message); }
+    function delCharity(id){
+        if(confirm("Delete charity?")) req(`/charities/${id}`,"DELETE").then(loadCharities);
     }
 
-    /* DONATIONS */
+    /* -------- DONATIONS -------- */
     async function loadDonations(){
-        el("donErr").textContent="";
-        try{
-            donations=await request("/donations");
-            renderDonations(donations);
-        }catch(e){el("donErr").textContent=e.message; toast("err","Donations",e.message);}
+        const d=await req("/donations");
+        donations.innerHTML=d.map(x=>`
+<tr>
+<td>${x.id}</td><td>${x.donorId}</td><td>${x.charityId}</td><td>${x.amount}</td>
+<td class="actions">
+<button onclick="editDonation(${x.id},${x.amount})">✏️</button>
+<button class="del" onclick="delDonation(${x.id})">🗑</button>
+</td></tr>`).join("");
     }
-    function renderDonations(list){
-        const tb=el("donTb");
-        tb.innerHTML = list.length ? list.map(d=>`
-    <tr>
-      <td>${d.id}</td>
-      <td>${esc(donorName(d.donorId))}</td>
-      <td>${esc(charityName(d.charityId))}</td>
-      <td><b>${Number(d.amount||0).toLocaleString()}</b></td>
-      <td class="mut">${esc(d.comment||"")}</td>
-      <td>
-        <button class="btn" onclick="startEditDonation(${d.id})">Edit</button>
-        <button class="btn danger" onclick="deleteDonation(${d.id})">Del</button>
-      </td>
-    </tr>`).join("") : `<tr><td colspan="6" class="mut">No donations.</td></tr>`;
+    function addDonation(){
+        req("/donations","POST",{donorId:dd.value,charityId:dc.value,amount:da.value,comment:dcom.value})
+            .then(loadDonations);
+        da.value=dcom.value="";
     }
-    async function createDonation(){
-        const donorId=+el("donDonor").value, charityId=+el("donCharity").value;
-        const amount=+el("donAmount").value, comment=el("donComment").value.trim();
-        if(!donorId||!charityId){el("donErr").textContent="Select donor and charity."; return;}
-        if(!amount||amount<=0){el("donErr").textContent="Amount must be > 0."; return;}
-        try{
-            await request("/donations",{method:"POST",body:JSON.stringify({donorId,charityId,amount,comment})});
-            el("donAmount").value=""; el("donComment").value="";
-            toast("ok","Donation saved",amount.toLocaleString());
-            await loadDonations();
-        }catch(e){el("donErr").textContent=e.message; toast("err","Create donation",e.message);}
+    function editDonation(id,a){
+        const amount=prompt("New amount:",a);
+        if(amount>0) req(`/donations/${id}`,"PUT",{amount}).then(loadDonations);
     }
-    function startEditDonation(id){
-        const d=donations.find(x=>+x.id===+id); if(!d) return;
-        editingDonationId=id;
-        el("donDonor").value=String(d.donorId);
-        el("donCharity").value=String(d.charityId);
-        el("donAmount").value=String(d.amount);
-        el("donComment").value=d.comment||"";
-        el("donSaveBtn").textContent="Save"; el("donSaveBtn").onclick=saveDonation;
-        el("donCancelBtn").style.display="inline-flex";
-    }
-    function cancelEditDonation(){
-        editingDonationId=null;
-        el("donAmount").value=""; el("donComment").value="";
-        el("donSaveBtn").textContent="Save"; el("donSaveBtn").onclick=createDonation;
-        el("donCancelBtn").style.display="none";
-    }
-    async function saveDonation(){
-        const id=editingDonationId;
-        const donorId=+el("donDonor").value, charityId=+el("donCharity").value;
-        const amount=+el("donAmount").value, comment=el("donComment").value.trim();
-        if(!id) return;
-        if(!donorId||!charityId){el("donErr").textContent="Select donor and charity."; return;}
-        if(!amount||amount<=0){el("donErr").textContent="Amount must be > 0."; return;}
-        try{
-            await request(`/donations/${id}`,{method:"PUT",body:JSON.stringify({donorId,charityId,amount,comment})});
-            toast("ok","Donation updated",`ID ${id}`);
-            cancelEditDonation();
-            await loadDonations();
-        }catch(e){el("donErr").textContent=e.message; toast("err","Update donation",e.message);}
-    }
-    async function deleteDonation(id){
-        if(!confirm("Delete donation?")) return;
-        try{ await request(`/donations/${id}`,{method:"DELETE"}); toast("ok","Donation deleted",`ID ${id}`); await loadDonations(); }
-        catch(e){ toast("err","Delete donation",e.message); }
-    }
-    async function loadTop(){
-        const min=+el("minAmount").value||0;
-        try{ const list=await request(`/donations/top?minAmount=${min}`); renderDonations(list); toast("ok","Filtered",`min ${min.toLocaleString()}`); }
-        catch(e){ toast("err","Filter",e.message); }
+    function delDonation(id){
+        if(confirm("Delete donation?")) req(`/donations/${id}`,"DELETE").then(loadDonations);
     }
 
-    /* INIT */
-    async function refreshAll(){ await Promise.all([loadDonors(),loadCharities(),loadDonations()]); }
+    /* -------- INIT -------- */
+    function refreshAll(){loadDonors();loadCharities();loadDonations();}
     refreshAll();
 </script>
+
 </body>
 </html>
